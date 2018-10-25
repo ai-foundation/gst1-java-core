@@ -16,25 +16,38 @@
 
 package org.freedesktop.gstreamer;
 
-import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
+import org.freedesktop.gstreamer.lowlevel.EnumMapper;
+import org.freedesktop.gstreamer.lowlevel.IntegerEnum;
 
 /**
  * The state of a WebRTC peer connection
  * Available since GStreamer 1.14
  */
-public enum WebRTCPeerConnectionState {
+public enum WebRTCPeerConnectionState implements IntegerEnum {
     /** New WebRTC connection */
-    NEW,
+    NEW(0),
     /** A WebRTC connection is being made */
-    CONNECTING,
+    CONNECTING(1),
     /** A WebRTC connection has been made */
-    CONNECTED,
+    CONNECTED(2),
     /** A WebRTC connection has been disconnected */
-    DISCONNECTED,
+    DISCONNECTED(3),
     /** Attempt to make a WebRTC connection failed */
-    FAILED,
+    FAILED(4),
     /** A WebRTC connection has been closed */
-    CLOSED,
-    /** Unknown result */
-    @DefaultEnumValue UNKNOWN;
+    CLOSED(5);
+
+    WebRTCPeerConnectionState(int value) {
+        this.value = value;
+    }
+
+    public int intValue() {
+        return value;
+    }
+
+    public static final WebRTCPeerConnectionState valueOf(int state) {
+        return EnumMapper.getInstance().valueOf(state, WebRTCPeerConnectionState.class);
+    }
+
+    private final int value;
 }

@@ -736,6 +736,7 @@ public final class Gst {
                     Registry.class,
                     SDPMessage.class,
                     Sample.class,
+                    WebRTCDataChannel.class,
                     WebRTCSessionDescription.class,
                     // ----------- Elements -------------
                     AppSink.class,

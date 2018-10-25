@@ -26,6 +26,7 @@ import com.sun.jna.Pointer;
 
 public class WebRTCSessionDescription extends NativeObject {
   public static final String GTYPE_NAME = "GstWebRTCSessionDescription";
+  public static final GType GTYPE = GSTWEBRTCSESSIONDESCRIPTION_API.gst_webrtc_session_description_get_type();
 
   protected GstWebRTCSessionDescriptionAPI.WebRTCSessionDescriptionStruct sessionDescriptionStruct;
 

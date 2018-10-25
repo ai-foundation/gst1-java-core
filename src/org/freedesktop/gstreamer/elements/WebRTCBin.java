@@ -24,6 +24,7 @@ import org.freedesktop.gstreamer.Promise;
 import org.freedesktop.gstreamer.State;
 import org.freedesktop.gstreamer.Structure;
 import org.freedesktop.gstreamer.GstObject;
+import org.freedesktop.gstreamer.WebRTCDataChannel;
 import org.freedesktop.gstreamer.WebRTCSessionDescription;
 import org.freedesktop.gstreamer.WebRTCPeerConnectionState;
 
@@ -48,6 +49,16 @@ public class WebRTCBin extends Bin {
         super(init);
     }
 
+    /**
+     * Create a new {@link WebRTCBin} with a unique name.
+     */
+    public WebRTCBin() {
+        super(makeRawElement(GST_NAME, null));
+    }
+
+    /**
+     * Create a new {@link WebRTCBin} with the given name.
+     */
     public WebRTCBin(String name) {
         super(makeRawElement(GST_NAME, name));
     }
@@ -94,6 +105,14 @@ public class WebRTCBin extends Bin {
         public void onAnswerCreated(WebRTCSessionDescription answer);
     }
 
+    /** 
+     * Signal emitted when this {@link WebRTCBin} receives a {@link WebRTCDataChannel} from 
+     * a remote peer
+     */
+    public static interface ON_DATA_CHANNEL {
+        public void onDataChannel(WebRTCDataChannel channel);
+    }
+
     /**
      * Adds a listener for the <code>on-negotiation-needed</code> signal.
      * @param listener
@@ -116,6 +135,19 @@ public class WebRTCBin extends Bin {
             @SuppressWarnings("unused")
             public void callback(Element elem, int sdpMLineIndex, String candidate) {
                 listener.onIceCandidate(sdpMLineIndex, candidate);
+            }
+        });
+    }
+
+    /**
+     * Adds a listener for the <code>on-data-channel</code> signal
+     * @param listener
+     */
+    public void connect(final ON_DATA_CHANNEL listener) {
+        connect(ON_DATA_CHANNEL.class, listener, new GstCallback() {
+            @SuppressWarnings("unused")
+            public void callback(Element elem, WebRTCDataChannel channel) {
+                listener.onDataChannel(channel);
             }
         });
     }
@@ -160,6 +192,23 @@ public class WebRTCBin extends Bin {
             }
         });
         emit("create-answer", null, promise);
+    }
+
+    /**
+     *  Creates a {@link WebRTCDataChannel} that can be used to send arbitrary messages to other connected peers
+     *  <p>
+     *  Should be called once this {@link WebRTCBin} is in the READY state. Otherwise an error will be thrown
+     *  <p>
+     *  @return the new {@link WebRTCDataChannel}
+     */
+    public WebRTCDataChannel createDataChannel() {
+        if (getState() != State.READY) {
+            throw new IllegalStateException("WebRTCBin must be in READY state to create data channel");
+        }
+
+        PointerByReference channel = new PointerByReference();
+        emit("create-data-channel", "channel", null, channel);
+        return new WebRTCDataChannel(new Initializer(channel.getValue(), false, true));
     }
 
     /**
@@ -244,7 +293,8 @@ public class WebRTCBin extends Bin {
      * @return a {@link WebRTCPeerConnectionState} describing the connection state
      */
     public WebRTCPeerConnectionState getConnectionState() {
-        return (WebRTCPeerConnectionState)get("connection-state");
+        int connectionState = (Integer)get("connection-state");
+        return WebRTCPeerConnectionState.valueOf(connectionState);
     }
 
     /**
