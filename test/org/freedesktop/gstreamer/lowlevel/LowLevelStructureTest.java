@@ -185,5 +185,6 @@ public class LowLevelStructureTest {
             structs.add(GstSDPMessageAPI.SDPMessageStruct.class);
             structs.add(GstPromiseAPI.PromiseStruct.class);
         }
+
     }
 }

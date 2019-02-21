@@ -293,8 +293,7 @@ public class WebRTCBin extends Bin {
      * @return a {@link WebRTCPeerConnectionState} describing the connection state
      */
     public WebRTCPeerConnectionState getConnectionState() {
-        int connectionState = (Integer)get("connection-state");
-        return WebRTCPeerConnectionState.valueOf(connectionState);
+        return (WebRTCPeerConnectionState)get("connection-state");
     }
 
     /**

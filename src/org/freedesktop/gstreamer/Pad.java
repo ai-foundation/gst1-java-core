@@ -654,9 +654,7 @@ public class Pad extends GstObject {
     public FlowReturn pullRange(long offset, int size, Buffer[] buffer) {
     	return GSTPAD_API.gst_pad_pull_range(this, offset, size, buffer);
     }
-    
-        
-    
+
     /**
      * Pushes a buffer to the peer of pad .
      * This function will call installed block probes before triggering any 
@@ -679,7 +677,7 @@ public class Pad extends GstObject {
     public FlowReturn push(final Buffer buffer) {
         return GSTPAD_API.gst_pad_push(this, buffer);
     }
-    
+
     /**
      * Gets the template for pad.
      * 
@@ -689,7 +687,6 @@ public class Pad extends GstObject {
     public PadTemplate getTemplate() {
         return GSTPAD_API.gst_pad_get_pad_template(this);
     }
-
 
     /**
      * Check if the pad has caps set on it with a GST_EVENT_CAPS events
