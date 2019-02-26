@@ -19,14 +19,17 @@
 package org.freedesktop.gstreamer.elements;
 
 import org.freedesktop.gstreamer.Bin;
+import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.Element;
+import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.Promise;
 import org.freedesktop.gstreamer.State;
 import org.freedesktop.gstreamer.Structure;
-import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.WebRTCDataChannel;
-import org.freedesktop.gstreamer.WebRTCSessionDescription;
+import org.freedesktop.gstreamer.WebRTCRTPTransceiver;
 import org.freedesktop.gstreamer.WebRTCPeerConnectionState;
+import org.freedesktop.gstreamer.WebRTCSessionDescription;
+import org.freedesktop.gstreamer.WebRTCTransceiverDirection;
 
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
@@ -316,5 +319,13 @@ public class WebRTCBin extends Bin {
         WebRTCSessionDescription description = (WebRTCSessionDescription)get("remote-description");
         description.disown();
         return description;
+    }
+
+    public WebRTCRTPTransceiver addTransceiver(WebRTCTransceiverDirection direction, Caps caps) {
+        Pointer[] ptr = new Pointer[1];
+        PointerByReference transceiver = new PointerByReference();
+        emit("add-transceiver", direction, caps, transceiver);
+
+        return new WebRTCRTPTransceiver(new Initializer(transceiver.getValue(), false, true));
     }
 }
