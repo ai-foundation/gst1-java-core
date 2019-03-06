@@ -21,12 +21,12 @@ package org.freedesktop.gstreamer.lowlevel;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.freedesktop.gstreamer.Event;
-import org.freedesktop.gstreamer.EventType;
-import org.freedesktop.gstreamer.Message;
-import org.freedesktop.gstreamer.MessageType;
-import org.freedesktop.gstreamer.Query;
-import org.freedesktop.gstreamer.QueryType;
+import org.freedesktop.gstreamer.event.Event;
+import org.freedesktop.gstreamer.event.EventType;
+import org.freedesktop.gstreamer.message.Message;
+import org.freedesktop.gstreamer.message.MessageType;
+import org.freedesktop.gstreamer.query.Query;
+import org.freedesktop.gstreamer.query.QueryType;
 import org.freedesktop.gstreamer.event.BufferSizeEvent;
 import org.freedesktop.gstreamer.event.CapsEvent;
 import org.freedesktop.gstreamer.event.EOSEvent;
@@ -61,6 +61,7 @@ import org.freedesktop.gstreamer.query.SeekingQuery;
 import org.freedesktop.gstreamer.query.SegmentQuery;
 
 import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.glib.NativeObject;
 
 /**
  * Mapper for classes which have subtypes (e.g. Event, Message, Query).
@@ -69,8 +70,8 @@ import com.sun.jna.Pointer;
  * raw pointer passed in.
  */
 @SuppressWarnings("serial")
-class SubtypeMapper {
-    static <T extends NativeObject> Class<?> subtypeFor(final Class<T> defaultClass, final Pointer ptr) {
+public class SubtypeMapper {
+    public static <T extends NativeObject> Class<?> subtypeFor(final Class<T> defaultClass, final Pointer ptr) {
         Mapper mapper = MapHolder.mappers.get(defaultClass);
         Class<?> cls = mapper != null ? mapper.subtypeFor(ptr) : null;
         return cls != null ? cls : defaultClass;
@@ -106,7 +107,7 @@ class SubtypeMapper {
             }};
             public static Class<? extends NativeObject> subtypeFor(Pointer ptr) {
                 GstEventAPI.EventStruct struct = new GstEventAPI.EventStruct(ptr);
-                EventType type = EventType.valueOf((Integer) struct.readField("type"));
+                EventType type = (EventType) struct.readField("type");
                 Class<? extends Event> eventClass = MapHolder.typeMap.get(type);
                 return eventClass != null ? eventClass : Event.class;
             }
@@ -156,7 +157,7 @@ class SubtypeMapper {
             }};
             public static Class<? extends NativeObject> subtypeFor(Pointer ptr) {
                 GstQueryAPI.QueryStruct struct = new GstQueryAPI.QueryStruct(ptr);
-                QueryType type = QueryType.valueOf((Integer) struct.readField("type"));
+                QueryType type = (QueryType) struct.readField("type");
                 Class<? extends Query> queryClass = typeMap.get(type);
                 return queryClass != null ? queryClass : Query.class;
             }

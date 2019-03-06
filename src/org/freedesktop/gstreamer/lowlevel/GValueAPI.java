@@ -25,13 +25,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.freedesktop.gstreamer.GObject;
+import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.lowlevel.annotations.CallerOwnsReturn;
 import org.freedesktop.gstreamer.lowlevel.annotations.Invalidate;
 
 import com.sun.jna.Library;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.glib.NativeObject;
+import org.freedesktop.gstreamer.glib.Natives;
 
 /**
  *
@@ -168,7 +170,8 @@ public interface GValueAPI extends Library {
                 Class<? extends NativeObject> cls = GstTypes.classFor(g_type);
                 if (cls != null) {
                     Pointer ptr = GVALUE_API.g_value_get_boxed(this);
-                    return NativeObject.objectFor(ptr, cls, 1, true);
+//                    return NativeObject.objectFor(ptr, cls, 1, true);
+                    return Natives.objectFor(ptr, cls, true, true);
                 }
             }
             return GVALUE_API.g_value_get_object(this);        
@@ -252,8 +255,12 @@ public interface GValueAPI extends Library {
         }
         
         public GValueArray(int n_prealloced) {
+            this(n_prealloced, true);
+        }
+        
+        public GValueArray(int n_prealloced, boolean ownsMemory) {
             this(GVALUE_API.g_value_array_new(n_prealloced));
-            ownsMemory = true;
+            this.ownsMemory = ownsMemory;
         }
         
         public GValueArray(Pointer pointer) {

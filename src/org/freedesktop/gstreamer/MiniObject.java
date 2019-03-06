@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2016 Christophe Lafolet
  * Copyright (c) 2014 Tom Greenwood <tgreenwood@cafex.com>
  * Copyright (c) 2009 Levente Farkas
@@ -18,55 +19,52 @@
  * You should have received a copy of the GNU Lesser General Public License
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.freedesktop.gstreamer;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-
-import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstMiniObjectAPI.MiniObjectStruct;
-import org.freedesktop.gstreamer.lowlevel.RefCountedObject;
+import org.freedesktop.gstreamer.glib.RefCountedObject;
+import org.freedesktop.gstreamer.lowlevel.GPointer;
 
 import static org.freedesktop.gstreamer.lowlevel.GstMiniObjectAPI.GSTMINIOBJECT_API;
+import org.freedesktop.gstreamer.lowlevel.GstMiniObjectPtr;
 
 /**
  * Lightweight base class for the GStreamer object hierarchy
- *
- * MiniObject is a baseclass like {@link GObject}, but has been stripped down of
- * features to be fast and small.
- * It offers sub-classing and ref-counting in the same way as GObject does.
- * It has no properties and no signal-support though.
+ * <p>
+ * See upstream documentation at
+ * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/gstreamer-GstMiniObject.html"
+ * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/gstreamer-GstMiniObject.html</a>
+ * <p>
+ * MiniObject is a simple structure that can be used to implement refcounted
+ * types.
  */
-public class MiniObject extends RefCountedObject {
+public abstract class MiniObject extends RefCountedObject {
+
     /**
      * Creates a new instance of MiniObject
      */
-    public MiniObject(Initializer init) {
-        super(init);
+    protected MiniObject(Initializer init) {
+        this(new Handle(init.ptr.as(GstMiniObjectPtr.class, GstMiniObjectPtr::new),
+                init.ownsHandle), init.needRef);
+    }
+    
+    protected MiniObject(Handle handle, boolean needRef) {
+        super(handle, needRef);
     }
 
     /**
-     * Gives the type value.
-     */
-    public static GType getType(Pointer ptr) {
-        // Quick getter for GType without allocation
-        // same as : new MiniObjectStruct(ptr).type
-        if (Native.SIZE_T_SIZE == 8) {
-            return GType.valueOf(ptr.getLong(0));
-        } else if (Native.SIZE_T_SIZE == 4) {
-            return GType.valueOf( ((long) ptr.getInt(0)) & 0xffffffffL );
-        } else {
-            throw new IllegalStateException("SIZE_T size not supported: " + Native.SIZE_T_SIZE);
-        }
-    }
-
-    /**
-     * If mini_object has the LOCKABLE flag set, check if the current EXCLUSIVE lock on object is the only one, this means that changes to the object will not be visible to any other object.
+     * If mini_object has the LOCKABLE flag set, check if the current EXCLUSIVE
+     * lock on object is the only one, this means that changes to the object
+     * will not be visible to any other object.
      *
-     * <p></p>If the LOCKABLE flag is not set, check if the refcount of mini_object is exactly 1, meaning that no other reference exists to the object and that the object is therefore writable.
+     * <p>
+     * </p>If the LOCKABLE flag is not set, check if the refcount of mini_object
+     * is exactly 1, meaning that no other reference exists to the object and
+     * that the object is therefore writable.
      *
-     * <p></p>Modification of a mini-object should only be done after verifying that it is writable.
+     * <p>
+     * </p>Modification of a mini-object should only be done after verifying
+     * that it is writable.
      *
      * @return true if the object is writable.
      */
@@ -76,7 +74,8 @@ public class MiniObject extends RefCountedObject {
 
     /**
      * Makes a writable instance of this MiniObject.
-     * <p> The result is cast to <tt>subclass</tt>.
+     * <p>
+     * The result is cast to <tt>subclass</tt>.
      *
      * @return a writable version (possibly a duplicate) of this MiniObject.
      */
@@ -85,7 +84,7 @@ public class MiniObject extends RefCountedObject {
         if (result == null) {
             throw new NullPointerException("Could not make " + this.getClass().getSimpleName() + " writable");
         }
-        return (T)result;
+        return (T) result;
     }
 
     /**
@@ -98,28 +97,40 @@ public class MiniObject extends RefCountedObject {
         if (result == null) {
             throw new NullPointerException("Could not make a copy of " + this.getClass().getSimpleName());
         }
-        return (T)result;
-    }
-
-    @Override
-    protected void ref() {
-        GSTMINIOBJECT_API.gst_mini_object_ref(this);
-    }
-
-    @Override
-    protected void unref() {
-        GSTMINIOBJECT_API.gst_mini_object_unref(this);
+        return (T) result;
     }
 
     public int getRefCount() {
-        final MiniObjectStruct struct = new MiniObjectStruct(handle());
+        final MiniObjectStruct struct = new MiniObjectStruct(getRawPointer());
         return (Integer) struct.readField("refcount");
     }
 
-    @Override
-    protected void disposeNativeHandle(Pointer ptr) {
-        if (ownsHandle.get()) {
-            GSTMINIOBJECT_API.gst_mini_object_unref(ptr);
+    private static final class Handle extends RefCountedObject.Handle {
+
+        public Handle(GstMiniObjectPtr ptr, boolean ownsHandle) {
+            super(ptr, ownsHandle);
         }
+
+        @Override
+        protected void disposeNativeHandle(GPointer ptr) {
+            GSTMINIOBJECT_API.gst_mini_object_unref(
+                    ptr.as(GstMiniObjectPtr.class, GstMiniObjectPtr::new));
+        }
+
+        @Override
+        protected void ref() {
+            GSTMINIOBJECT_API.gst_mini_object_ref(getPointer());
+        }
+
+        @Override
+        protected void unref() {
+            GSTMINIOBJECT_API.gst_mini_object_unref(getPointer());
+        }
+
+        @Override
+        protected GstMiniObjectPtr getPointer() {
+            return (GstMiniObjectPtr) super.getPointer();
+        }
+
     }
 }

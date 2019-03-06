@@ -1,4 +1,5 @@
 /* 
+ * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2009 Tamas Korodi <kotyo@zamba.fm>
  * 
@@ -21,10 +22,11 @@ package org.freedesktop.gstreamer.interfaces;
 
 import static org.freedesktop.gstreamer.lowlevel.GstColorBalanceAPI.GSTCOLORBALANCE_API;
 
-import org.freedesktop.gstreamer.GObject;
+import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.lowlevel.GstColorBalanceAPI;
 
 import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.glib.Natives;
 
 public class ColorBalanceChannel extends GObject {
 	public static final String GTYPE_NAME = "GstColorBalanceChannel";
@@ -37,14 +39,14 @@ public class ColorBalanceChannel extends GObject {
 	 * 
 	 * @param init
 	 */
-	public ColorBalanceChannel(Initializer init) {
+	ColorBalanceChannel(Initializer init) {
 		super(init);
 		throw new IllegalArgumentException("Cannot instantiate");
 	}
 
 	ColorBalanceChannel(ColorBalance colorBalance, Pointer ptr,
 			boolean needRef, boolean ownsHandle) {
-		super(initializer(ptr, needRef, ownsHandle));
+		super(Natives.initializer(ptr, needRef, ownsHandle));
 		struct = new GstColorBalanceAPI.ColorBalanceChannelStruct(ptr);
 		this.colorBalance = colorBalance;
 	}

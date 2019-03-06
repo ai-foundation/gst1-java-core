@@ -22,16 +22,15 @@ package org.freedesktop.gstreamer.lowlevel;
 import java.util.Arrays;
 import java.util.List;
 
-import org.freedesktop.gstreamer.ActivateMode;
+import org.freedesktop.gstreamer.PadMode;
 import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.ClockReturn;
-import org.freedesktop.gstreamer.ClockTime;
-import org.freedesktop.gstreamer.Event;
+import org.freedesktop.gstreamer.event.Event;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.MiniObject;
 import org.freedesktop.gstreamer.Pad;
-import org.freedesktop.gstreamer.Query;
+import org.freedesktop.gstreamer.query.Query;
 import org.freedesktop.gstreamer.elements.BaseSink;
 import org.freedesktop.gstreamer.lowlevel.GlibAPI.GList;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstSegmentStruct;
@@ -60,7 +59,7 @@ public interface BaseSinkAPI extends Library {
 
         /*< protected >*/
         public volatile Pad sinkpad;
-        public volatile ActivateMode pad_mode;
+        public volatile PadMode pad_mode;
 
         /*< protected >*/ /* with LOCK */
         public volatile long offset;
@@ -263,17 +262,17 @@ public interface BaseSinkAPI extends Library {
     boolean gst_base_sink_is_last_buffer_enabled(BaseSink sink);
 
     /* latency */
-    boolean gst_base_sink_query_latency(BaseSink sink, boolean live, boolean upstream_live, ClockTime min_latency, ClockTime max_latency);
-    ClockTime gst_base_sink_get_latency(BaseSink sink);
+    boolean gst_base_sink_query_latency(BaseSink sink, boolean live, boolean upstream_live, long min_latency, long max_latency);
+    long gst_base_sink_get_latency(BaseSink sink);
         
     /* render delay */
-    void gst_base_sink_set_render_delay(BaseSink sink, ClockTime delay);
-    ClockTime gst_base_sink_get_render_delay(BaseSink sink);
+    void gst_base_sink_set_render_delay(BaseSink sink, long delay);
+    long gst_base_sink_get_render_delay(BaseSink sink);
     
     /* blocksize */
     void gst_base_sink_set_blocksize(BaseSink sink, int blocksize);
     int gst_base_sink_get_blocksize(BaseSink sink);
     
-    ClockReturn gst_base_sink_wait_clock(BaseSink sink, ClockTime time, /* GstClockTimeDiff */ Pointer jitter);
-    FlowReturn gst_base_sink_wait_eos(BaseSink sink, ClockTime time, /* GstClockTimeDiff */ Pointer jitter);
+    ClockReturn gst_base_sink_wait_clock(BaseSink sink, long time, /* GstlongDiff */ Pointer jitter);
+    FlowReturn gst_base_sink_wait_eos(BaseSink sink, long time, /* GstlongDiff */ Pointer jitter);
 }

@@ -21,8 +21,7 @@ package org.freedesktop.gstreamer.lowlevel;
 
 import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.Caps;
-import org.freedesktop.gstreamer.ClockTime;
-import org.freedesktop.gstreamer.Event;
+import org.freedesktop.gstreamer.event.Event;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Pad;
 import org.freedesktop.gstreamer.PadDirection;
@@ -37,7 +36,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import java.util.Arrays;
 import java.util.List;
-import org.freedesktop.gstreamer.Query;
+import org.freedesktop.gstreamer.query.Query;
 
 /**
  * GstBaseTransform methods and structures
@@ -232,7 +231,7 @@ public interface BaseTransformAPI extends Library {
     void gst_base_transform_set_in_place(BaseTransform trans, boolean in_place);
     boolean gst_base_transform_is_in_place(BaseTransform trans);
 
-    void gst_base_transform_update_qos(BaseTransform trans, double proportion, long diff, ClockTime timestamp);
+    void gst_base_transform_update_qos(BaseTransform trans, double proportion, long diff, long timestamp);
     void gst_base_transform_set_qos_enabled(BaseTransform trans, boolean enabled);
     boolean gst_base_transform_is_qos_enabled(BaseTransform trans);
 

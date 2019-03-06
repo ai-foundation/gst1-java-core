@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
  * 
  * This file is part of gstreamer-java.
@@ -20,10 +21,18 @@ import java.nio.charset.StandardCharsets;
 
 import static org.freedesktop.gstreamer.lowlevel.GstSDPMessageAPI.GSTSDPMESSAGE_API;
 
-import org.freedesktop.gstreamer.lowlevel.NativeObject;
+import org.freedesktop.gstreamer.glib.NativeObject;
 
 import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.lowlevel.GPointer;
 
+/**
+ * Wrapping type and helper methods for dealing with SDP messages.
+ * <p>
+ * See upstream documentation at
+ * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gst-plugins-base-libs/html/gst-plugins-base-libs-GstSDPMessage.html"
+ * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gst-plugins-base-libs/html/gst-plugins-base-libs-GstSDPMessage.html</a>
+ */
 public class SDPMessage extends NativeObject {
     public static final String GTYPE_NAME = "GstSDPMessage";
 
@@ -32,17 +41,21 @@ public class SDPMessage extends NativeObject {
      *
      * @param init internal initialization data
      */
-    public SDPMessage(Initializer init) {
-        super(init);
+    SDPMessage(Initializer init) {
+        this(new Handle(init.ptr, init.ownsHandle));
     }
 
+    SDPMessage(Handle handle) {
+        super(handle);
+    }
+    
     /**
      * Creates a new instance of SDPMessage
      */
     public SDPMessage() {
-        this(initializer());
+        this(initHandle());
     }
-
+    
     /**
      * A SDP formatted string representation of SDPMessage.
      *
@@ -69,27 +82,36 @@ public class SDPMessage extends NativeObject {
         }
     }
 
-    /**
-     * Creates a copy of this SDPMessage.
-     *
-     * @return a copy of SDPMessage.
-     */
-    public SDPMessage copy(boolean shouldInvalidateOriginal) {
-        Pointer[] ptr = new Pointer[1];
-        GSTSDPMESSAGE_API.gst_sdp_message_copy(this, ptr);
-        if (shouldInvalidateOriginal) {
-            this.invalidate();
-        }
-        return new SDPMessage(initializer(ptr[0]));
-    }
+//    /**
+//     * Creates a copy of this SDPMessage.
+//     *
+//     * @return a copy of SDPMessage.
+//     */
+//    SDPMessage copy(boolean shouldInvalidateOriginal) {
+//        Pointer[] ptr = new Pointer[1];
+//        GSTSDPMESSAGE_API.gst_sdp_message_copy(this, ptr);
+//        if (shouldInvalidateOriginal) {
+//            this.invalidate();
+//        }
+//        return new SDPMessage(initializer(ptr[0]));
+//    }
 
-    private static Initializer initializer() {
+    private static Handle initHandle() {
         Pointer[] ptr = new Pointer[1];
         GSTSDPMESSAGE_API.gst_sdp_message_new(ptr);
-        return initializer(ptr[0]);
+        return new Handle(new GPointer(ptr[0]), true);
     }
 
-    protected void disposeNativeHandle(Pointer ptr) {
-        GSTSDPMESSAGE_API.gst_sdp_message_free(ptr);
+    private static final class Handle extends NativeObject.Handle {
+
+        public Handle(GPointer ptr, boolean ownsHandle) {
+            super(ptr, ownsHandle);
+        }
+
+        @Override
+        protected void disposeNativeHandle(GPointer ptr) {
+            GSTSDPMESSAGE_API.gst_sdp_message_free(ptr.getPointer());
+        }
+        
     }
 }

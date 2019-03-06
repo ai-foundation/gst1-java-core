@@ -26,15 +26,14 @@ import java.util.List;
 import org.freedesktop.gstreamer.Bus;
 import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.Clock;
-import org.freedesktop.gstreamer.ClockTime;
 import org.freedesktop.gstreamer.Element;
 import org.freedesktop.gstreamer.ElementFactory;
-import org.freedesktop.gstreamer.Event;
+import org.freedesktop.gstreamer.event.Event;
 import org.freedesktop.gstreamer.Format;
-import org.freedesktop.gstreamer.Message;
+import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.Pad;
-import org.freedesktop.gstreamer.Query;
-import org.freedesktop.gstreamer.SeekType;
+import org.freedesktop.gstreamer.query.Query;
+import org.freedesktop.gstreamer.event.SeekType;
 import org.freedesktop.gstreamer.State;
 import org.freedesktop.gstreamer.StateChangeReturn;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
@@ -58,7 +57,6 @@ public interface GstElementAPI extends com.sun.jna.Library {
     GType gst_element_get_type();
     StateChangeReturn gst_element_set_state(Element elem, State state);
     StateChangeReturn gst_element_get_state(Element elem, State[] state, State[] pending, long timeout);
-    StateChangeReturn gst_element_get_state(Element elem, State[] state, State[] pending, ClockTime timeout);
     boolean gst_element_set_locked_state(Element element, boolean locked_state);
     boolean gst_element_sync_state_with_parent(Element elem);
     boolean gst_element_query_position(Element elem, Format fmt, long[] pos);
@@ -96,10 +94,10 @@ public interface GstElementAPI extends com.sun.jna.Library {
     /* clocking */
     Clock gst_element_get_clock(Element element);
     boolean gst_element_set_clock(Element element, Clock clock);
-    void gst_element_set_base_time(Element element, ClockTime time);
-    ClockTime gst_element_get_base_time(Element element);
-    void gst_element_set_start_time(Element element, ClockTime time);
-    ClockTime gst_element_get_start_time(Element element);
+    void gst_element_set_base_time(Element element, long time);
+    long gst_element_get_base_time(Element element);
+    void gst_element_set_start_time(Element element, long time);
+    long gst_element_get_start_time(Element element);
     
     /**
     * GstElement:
