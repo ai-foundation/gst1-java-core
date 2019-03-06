@@ -14,13 +14,17 @@
  * this work. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.freedesktop.gstreamer;
+package org.freedesktop.gstreamer.webrtc;
+
+import org.freedesktop.gstreamer.Gst;
+import org.freedesktop.gstreamer.GstObject;
 
 /**
  *
  * @see https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/blob/master/ext/webrtc/webrtcdatachannel.h
- * available since Gstreamer HEAD
+ * available since Gstreamer 1.14
  */
+@Gst.Since(minor = 14)
 public class WebRTCRTPTransceiver extends GstObject {
     public static final String GTYPE_NAME = "GstWebRTCRTPTransceiver";
 

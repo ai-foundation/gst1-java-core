@@ -14,15 +14,18 @@
  * this work. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.freedesktop.gstreamer;
+package org.freedesktop.gstreamer.webrtc;
 
+import org.freedesktop.gstreamer.Gst;
+import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
 /**
  *
  * @see https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/blob/master/ext/webrtc/webrtcdatachannel.h
- * available since Gstreamer HEAD
+ * available since Gstreamer 1.15
  */
+@Gst.Since(minor = 15)
 public class WebRTCDataChannel extends GstObject {
     public static final String GTYPE_NAME = "GstWebRTCDataChannel";
 

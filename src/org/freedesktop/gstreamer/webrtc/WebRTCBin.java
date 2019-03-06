@@ -24,13 +24,10 @@ import org.freedesktop.gstreamer.Element;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.Promise;
 import org.freedesktop.gstreamer.Structure;
-import org.freedesktop.gstreamer.WebRTCDataChannel;
-import org.freedesktop.gstreamer.WebRTCRTPTransceiver;
-import org.freedesktop.gstreamer.WebRTCPeerConnectionState;
-import org.freedesktop.gstreamer.WebRTCSessionDescription;
-import org.freedesktop.gstreamer.WebRTCTransceiverDirection;
-
+import org.freedesktop.gstreamer.State;
+import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * WebRTCBin is an abstraction over gstreamers webrtcbin element It is
@@ -152,7 +149,6 @@ public class WebRTCBin extends Bin {
     }
 
     /**
-<<<<<<< HEAD:src/org/freedesktop/gstreamer/elements/WebRTCBin.java
      * Adds a listener for the <code>on-data-channel</code> signal
      * @param listener
      */
@@ -167,10 +163,6 @@ public class WebRTCBin extends Bin {
 
     /**
      * Create an offer that can be sent to other clients to setup a WebRTC connection.
-=======
-     * Create an offer that can be sent to other clients to setup a WebRTC
-     * connection.
->>>>>>> master:src/org/freedesktop/gstreamer/webrtc/WebRTCBin.java
      * <p>
      * In most cases {@link #setLocalDescription} should be called after an
      * answer is created
@@ -228,7 +220,7 @@ public class WebRTCBin extends Bin {
 
         PointerByReference channel = new PointerByReference();
         emit("create-data-channel", "channel", null, channel);
-        return new WebRTCDataChannel(new Initializer(channel.getValue(), false, true));
+        return Natives.objectFor(channel.getValue(), WebRTCDataChannel.class, false, true);
     }
 
     /**
@@ -346,10 +338,9 @@ public class WebRTCBin extends Bin {
     }
 
     public WebRTCRTPTransceiver addTransceiver(WebRTCTransceiverDirection direction, Caps caps) {
-        Pointer[] ptr = new Pointer[1];
         PointerByReference transceiver = new PointerByReference();
         emit("add-transceiver", direction, caps, transceiver);
 
-        return new WebRTCRTPTransceiver(new Initializer(transceiver.getValue(), false, true));
+        return Natives.objectFor(transceiver.getValue(), WebRTCRTPTransceiver.class, false, true);
     }
 }

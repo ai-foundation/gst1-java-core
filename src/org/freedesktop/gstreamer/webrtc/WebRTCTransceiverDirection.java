@@ -14,14 +14,16 @@
  * this work. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.freedesktop.gstreamer;
+package org.freedesktop.gstreamer.webrtc;
 
+import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
 
 /**
  * The state of a WebRTC peer connection
  * Available since GStreamer 1.14
  */
+@Gst.Since(minor = 14)
 public enum WebRTCTransceiverDirection {
     /** No direction*/
     NONE,
