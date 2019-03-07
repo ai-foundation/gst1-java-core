@@ -40,7 +40,14 @@ public class WebRTC {
                             WebRTCSessionDescription::new),
                     registration(WebRTCBin.class,
                             WebRTCBin.GTYPE_NAME,
-                            WebRTCBin::new));
+                            WebRTCBin::new),
+                    registration(WebRTCDataChannel.class,
+                            WebRTCDataChannel.GTYPE_NAME,
+                            WebRTCDataChannel::new),
+                    registration(WebRTCRTPTransceiver.class,
+                            WebRTCRTPTransceiver.GTYPE_NAME,
+                            WebRTCRTPTransceiver::new)
+                    );
 
         }
 

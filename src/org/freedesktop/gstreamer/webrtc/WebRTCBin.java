@@ -275,7 +275,6 @@ public class WebRTCBin extends Bin {
     public void setStunServer(String server) {
         set("stun-server", server);
     }
-
     /**
      * Retrieves the STUN server that is used.
      *
@@ -303,6 +302,16 @@ public class WebRTCBin extends Bin {
      */
     public String getTurnServer() {
         return (String) get("turn-server");
+    }
+
+    /**
+     * Sets the <code>bundle-policy</code> property for this {@link WebRTCBin}
+     * which is used to bundle media attributes in the generated SDP descriptions
+     *
+     * @param policy the bundle policy to use
+     */
+    public void setBundlePolicy(WebRTCBundlePolicy policy) {
+        set("bundle-policy", policy.intValue());
     }
 
     /**
