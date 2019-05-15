@@ -121,6 +121,13 @@ public class WebRTCBin extends Bin {
     }
 
     /**
+     * Signal emitted when this {@link WebRTCBin} receives a new {@link WebRTCRTPTransceiver}
+     */
+    public static interface ON_NEW_TRANSCEIVER {
+        public void onNewTransceiver(WebRTCRTPTransceiver transceiver);
+    }
+
+    /**
      * Adds a listener for the <code>on-negotiation-needed</code> signal.
      *
      * @param listener
@@ -157,6 +164,15 @@ public class WebRTCBin extends Bin {
             @SuppressWarnings("unused")
             public void callback(Element elem, WebRTCDataChannel channel) {
                 listener.onDataChannel(channel);
+            }
+        });
+    }
+
+    public void connect(final ON_NEW_TRANSCEIVER listener) {
+        connect(ON_NEW_TRANSCEIVER.class, listener, new GstCallback() {
+            @SuppressWarnings("unused")
+            public void callback(Element elem, WebRTCRTPTransceiver transceiver) {
+                listener.onNewTransceiver(transceiver);
             }
         });
     }
@@ -321,7 +337,12 @@ public class WebRTCBin extends Bin {
      * state
      */
     public WebRTCPeerConnectionState getConnectionState() {
-        return (WebRTCPeerConnectionState) get("connection-state");
+        Object connectionState = get("connection-state");
+
+        if (connectionState instanceof Number) {
+            return WebRTCPeerConnectionState.values()[((Number) connectionState).intValue()];
+        }
+        return null;
     }
 
     /**

@@ -1,5 +1,6 @@
 /* 
  * Copyright (c) 2019 Neil C Smith
+ * Copyright (c) 2019 Antonio Morales
  * 
  * This file is part of gstreamer-java.
  *

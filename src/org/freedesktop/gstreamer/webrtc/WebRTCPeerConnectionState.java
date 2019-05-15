@@ -41,7 +41,7 @@ public enum WebRTCPeerConnectionState implements NativeEnum<WebRTCPeerConnection
 
     private final int value;
 
-    private WebRTCPeerConnectionState(int value) {
+    WebRTCPeerConnectionState(int value) {
         this.value = value;
     }
     
