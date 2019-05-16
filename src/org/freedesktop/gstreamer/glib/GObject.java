@@ -50,6 +50,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.freedesktop.gstreamer.MiniObject;
 import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
@@ -68,7 +70,9 @@ public abstract class GObject extends RefCountedObject {
     private static final Level LIFECYCLE = Level.FINE;
     private static final Logger LOG = Logger.getLogger(GObject.class.getName());
     private static final CallbackThreadInitializer GCALLBACK_THREAD_INIT
-            = new CallbackThreadInitializer(true, false, "GCallback");
+            = new CallbackThreadInitializer(true,
+                    Boolean.getBoolean("glib.detachCallbackThreads"),
+                    "GCallback");
     private static final Map<GObject, Boolean> STRONG_REFS
             = new ConcurrentHashMap<GObject, Boolean>();
     private static final GObjectAPI.GToggleNotify TOGGLE_NOTIFY = new ToggleNotify();
@@ -83,7 +87,7 @@ public abstract class GObject extends RefCountedObject {
     protected GObject(Handle handle, boolean needRef) {
         super(handle);
         this.handle = handle;
-        if (handle.ownsHandle()) {
+        if (handle.ownsReference()) {
             final boolean is_floating = GOBJECT_API.g_object_is_floating(handle.getPointer());
             LOG.log(LIFECYCLE, () -> String.format(
                     "Initialising owned handle for %s floating = %b refs = %d need ref = %b",
@@ -198,8 +202,8 @@ public abstract class GObject extends RefCountedObject {
             if (cls != null) {
                 Pointer ptr = GVALUE_API.g_value_get_boxed(propValue);
                 final GPointer gptr = GObject.class.isAssignableFrom(cls) ? new GObjectPtr(ptr)
-                : MiniObject.class.isAssignableFrom(cls) ? new GstMiniObjectPtr(ptr)
-                : new GPointer(ptr);
+                        : MiniObject.class.isAssignableFrom(cls) ? new GstMiniObjectPtr(ptr)
+                        : new GPointer(ptr);
                 return objectFor(gptr, cls, -1, true);
             }
         }
@@ -264,7 +268,7 @@ public abstract class GObject extends RefCountedObject {
         // Check if disposed as a disposed object may
         // have been free'd and we mustn't access it's
         // memory or we face possible SEGFAULT
-        GPointer ptr = handle.ptrRef.get();
+        GPointer ptr = handle.getPointer();
 
         if (ptr != null) {
 //            final GObjectStruct struct = new GObjectStruct(this);
@@ -279,7 +283,7 @@ public abstract class GObject extends RefCountedObject {
 
     /**
      * Get the native GType type name.
-     * @return GType type name 
+     * @return GType type name
      */
     public String getTypeName() {
         return handle.getPointer().getGType().getTypeName();
@@ -382,11 +386,17 @@ public abstract class GObject extends RefCountedObject {
     }
 
     @Override
+    public void dispose() {
+        super.dispose();
+        STRONG_REFS.remove(this);
+    }
+
+    @Override
     public void invalidate() {
         try {
             // Need to increase the ref count before removing the toggle ref, so
             // ensure the native object is not destroyed.
-            if (handle.ownsHandle()) {
+            if (handle.ownsReference()) {
                 handle.ref();
 
                 // Disconnect the callback.
@@ -614,7 +624,7 @@ public abstract class GObject extends RefCountedObject {
     private final class SignalCallback extends GCallback {
 
         protected SignalCallback(String signal, Callback cb) {
-            super(GOBJECT_API.g_signal_connect_data(GObject.this, signal, cb, null, null, 0), cb);
+            super(handle.connectSignal(signal, cb), cb);
             if (!connected) {
                 throw new IllegalArgumentException(String.format("Failed to connect signal '%s'", signal));
             }
@@ -622,17 +632,50 @@ public abstract class GObject extends RefCountedObject {
 
         @Override
         synchronized protected void disconnect() {
-            GOBJECT_API.g_signal_handler_disconnect(GObject.this, id);
+            handle.disconnectSignal(id);
         }
     }
 
     protected static class Handle extends RefCountedObject.Handle {
 
         private final IntPtr objectID;
+        private final Set<NativeLong> signals;
 
         public Handle(GObjectPtr ptr, boolean ownsHandle) {
             super(ptr, ownsHandle);
             this.objectID = new IntPtr(System.identityHashCode(this));
+            signals = new HashSet<>();
+        }
+
+        private synchronized NativeLong connectSignal(String signal, Callback cb) {
+            NativeLong id = GOBJECT_API.g_signal_connect_data(getPointer(), signal, cb, null, null, 0);
+            if (id.longValue() != 0) {
+                signals.add(id);
+            }
+            return id;
+        }
+
+        private synchronized void disconnectSignal(NativeLong id) {
+            if (signals.remove(id)) {
+                GOBJECT_API.g_signal_handler_disconnect(getPointer(), id);
+            }
+        }
+
+        private synchronized void clearSignals() {
+            signals.forEach(id -> GOBJECT_API.g_signal_handler_disconnect(getPointer(), id));
+            signals.clear();
+        }
+
+        @Override
+        public void invalidate() {
+            clearSignals();
+            super.dispose();
+        }
+
+        @Override
+        public void dispose() {
+            clearSignals();
+            super.dispose();
         }
 
         @Override
@@ -674,7 +717,7 @@ public abstract class GObject extends RefCountedObject {
         }
 
     }
-    
+
     private static final class ToggleNotify implements GObjectAPI.GToggleNotify {
 
         @Override

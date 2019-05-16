@@ -341,12 +341,7 @@ public class WebRTCBin extends Bin {
      * state
      */
     public WebRTCPeerConnectionState getConnectionState() {
-        Object connectionState = get("connection-state");
-
-        if (connectionState instanceof Number) {
-            return WebRTCPeerConnectionState.values()[((Number) connectionState).intValue()];
-        }
-        return null;
+        return NativeEnum.fromInt(WebRTCPeerConnectionState.class, (Integer) get("connection-state"));
     }
 
     /**
