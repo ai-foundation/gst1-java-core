@@ -22,16 +22,15 @@ import org.freedesktop.gstreamer.glib.NativeEnum;
 /**
  * The bundle policy to apply for bundling when creating SDP desciptions for WebRTC
  * Available since GStreamer 1.15
+ *
+ * More information on WebRTC Bundle policies can be viewed at
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCConfiguration#RTCBundlePolicy_enum
  */
 @Gst.Since(minor = 15)
 public enum WebRTCBundlePolicy implements NativeEnum<WebRTCBundlePolicy> {
-    /** New WebRTC connection */
     NONE(0),
-    /** A WebRTC connection is being made */
     BALANCED(1),
-    /** A WebRTC connection has been made */
     MAX_COMPAT(2),
-    /** A WebRTC connection has been disconnected */
     MAX_BUNDLE(3);
 
     private final int value;

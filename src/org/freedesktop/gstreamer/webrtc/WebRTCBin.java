@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 Neil C Smith
- * Copyright (c) 2018 Antonio Morales
+ * Copyright (c) 2019 Antonio Morales
  *
  * This file is part of gstreamer-java.
  *
@@ -168,6 +168,10 @@ public class WebRTCBin extends Bin {
         });
     }
 
+    /**
+     * Adds a listener for the <code>on-transceiver-added</code> signal
+     * @param listener
+     */
     public void connect(final ON_NEW_TRANSCEIVER listener) {
         connect(ON_NEW_TRANSCEIVER.class, listener, new GstCallback() {
             @SuppressWarnings("unused")
@@ -223,7 +227,7 @@ public class WebRTCBin extends Bin {
     }
 
     /**
-     *  Creates a {@link WebRTCDataChannel} that can be used to send arbitrary messages to other connected peers
+     *  Creates a {@link WebRTCDataChannel} that can be used to send messages to other connected peers
      *  <p>
      *  Should be called once this {@link WebRTCBin} is in the READY state. Otherwise an error will be thrown
      *  <p>
