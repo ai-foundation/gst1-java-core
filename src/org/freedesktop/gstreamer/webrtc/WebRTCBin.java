@@ -26,6 +26,7 @@ import org.freedesktop.gstreamer.Promise;
 import org.freedesktop.gstreamer.Structure;
 import org.freedesktop.gstreamer.State;
 import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.glib.NativeEnum;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 import com.sun.jna.ptr.PointerByReference;
 

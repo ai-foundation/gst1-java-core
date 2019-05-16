@@ -52,7 +52,8 @@ public interface GstEventAPI extends com.sun.jna.Library {
     Structure gst_event_get_structure(Event event);
 
     /* custom event */
-    Event gst_event_new_custom(EventType type, @Invalidate Structure structure);
+    @CallerOwnsReturn Event gst_event_new_custom(EventType type, @Invalidate Structure structure);
+    Pointer ptr_gst_event_new_custom(EventType type, @Invalidate Structure structure);
 
     /* flush events */
     @CallerOwnsReturn Event gst_event_new_flush_start();
