@@ -107,6 +107,7 @@ public class Structure extends NativeObject {
     public boolean fixateNearestInteger(String field, Integer value) {
         return GSTSTRUCTURE_API.gst_structure_fixate_field_nearest_int(this, field, value);
     }
+
     /**
      * Get the value of the named field as a boolean. Throws
      * {@link InvalidFieldException} if the Structure does not contain the named
@@ -121,6 +122,22 @@ public class Structure extends NativeObject {
             throw new InvalidFieldException("boolean", fieldName);
         }
         return val[0] != 0;
+    }
+
+    /**
+     * Get the value of the named field as a boolean. Throws
+     * {@link InvalidFieldException} if the Structure does not contain the named
+     * field or the named field is not a boolean.
+     *
+     * @param fieldName name of field
+     * @return boolean value of the named field
+     */
+    public long getLong(String fieldName) {
+        long[] val = {0L};
+        if (!GSTSTRUCTURE_API.gst_structure_get_uint64(this, fieldName, val)) {
+            throw new InvalidFieldException("long", fieldName);
+        }
+        return val[0];
     }
 
     /**

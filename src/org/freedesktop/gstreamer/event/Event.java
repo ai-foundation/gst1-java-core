@@ -93,7 +93,7 @@ public class Event extends MiniObject {
      * @param EventType the type of the event
      * @param Structure the structure containing the data for the event
      */
-    Event(EventType type, Structure structure) {
+    public Event(EventType type, Structure structure) {
         this(Natives.initializer(GSTEVENT_API.ptr_gst_event_new_custom(type, structure)));
     }
 
