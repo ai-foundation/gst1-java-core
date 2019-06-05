@@ -234,13 +234,13 @@ public class WebRTCBin extends Bin {
      *  <p>
      *  @return the new {@link WebRTCDataChannel}
      */
-    public WebRTCDataChannel createDataChannel() {
+    public WebRTCDataChannel createDataChannel(String label) {
         if (getState() != State.READY) {
             throw new IllegalStateException("WebRTCBin must be in READY state to create data channel");
         }
 
         PointerByReference channel = new PointerByReference();
-        emit("create-data-channel", "channel", null, channel);
+        emit("create-data-channel", label, null, channel);
         return Natives.objectFor(channel.getValue(), WebRTCDataChannel.class, false, true);
     }
 
